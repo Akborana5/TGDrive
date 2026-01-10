@@ -67,7 +67,7 @@ function getRootUrl() {
 function copyTextToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
-            alert('Link copied to clipboard!');
+            showToast('🔗 Link copied to clipboard!', 'success');
         }).catch(function (err) {
             console.error('Could not copy text: ', err);
             fallbackCopyTextToClipboard(text);
@@ -87,9 +87,9 @@ function fallbackCopyTextToClipboard(text) {
     try {
         const successful = document.execCommand('copy');
         if (successful) {
-            alert('Link copied to clipboard!');
+            showToast('🔗 Link copied to clipboard!', 'success');
         } else {
-            alert('Failed to copy the link.');
+            showToast('Failed to copy the link', 'error');
         }
     } catch (err) {
         console.error('Fallback: Oops, unable to copy', err);
