@@ -14,14 +14,16 @@ async function postJson(url, data) {
 document.getElementById('pass-login').addEventListener('click', async () => {
     const password = document.getElementById('auth-pass').value
     const data = { 'pass': password }
+    showLoading('Logging in...');
     const json = await postJson('/api/checkPassword', data)
+    hideLoading();
     if (json.status === 'ok') {
         localStorage.setItem('password', password)
-        alert('Logged In Successfully')
-        window.location.reload()
+        showToast('🎉 Login successful!', 'success');
+        setTimeout(() => window.location.reload(), 1000);
     }
     else {
-        alert('Wrong Password')
+        showToast('❌ Wrong password', 'error');
     }
 
 })
@@ -32,11 +34,13 @@ async function getCurrentDirectory() {
         return
     }
     try {
+        showLoading('Loading directory...');
         const auth = getFolderAuthFromPath()
         console.log(path)
 
         const data = { 'path': path, 'auth': auth }
         const json = await postJson('/api/getDirectory', data)
+        hideLoading();
 
         if (json.status === 'ok') {
             if (getCurrentPath().startsWith('/share')) {
@@ -56,12 +60,13 @@ async function getCurrentDirectory() {
             console.log(json)
             showDirectory(json['data'])
         } else {
-            alert('404 Current Directory Not Found')
+            showToast('❌ Directory not found', 'error');
         }
     }
     catch (err) {
         console.log(err)
-        alert('404 Current Directory Not Found')
+        hideLoading();
+        showToast('❌ Directory not found', 'error');
     }
 }
 
@@ -77,19 +82,23 @@ async function createNewFolder() {
             'path': path
         }
         try {
+            showLoading('Creating folder...');
             const json = await postJson('/api/createNewFolder', data)
+            hideLoading();
 
             if (json.status === 'ok') {
-                window.location.reload();
+                showToast('📁 Folder created successfully!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
             } else {
-                alert(json.status)
+                showToast(json.status, 'error');
             }
         }
         catch (err) {
-            alert('Error Creating Folder')
+            hideLoading();
+            showToast('❌ Error creating folder', 'error');
         }
     } else {
-        alert('Folder Name Cannot Be Empty')
+        showToast('❌ Folder name cannot be empty', 'error');
     }
 }
 
@@ -100,7 +109,7 @@ async function getFolderShareAuth(path) {
     if (json.status === 'ok') {
         return json.auth
     } else {
-        alert('Error Getting Folder Share Auth')
+        showToast('❌ Error getting folder share link', 'error');
     }
 }
 
@@ -120,7 +129,7 @@ fileInput.addEventListener('change', async (e) => {
     const file = fileInput.files[0];
 
     if (file.size > MAX_FILE_SIZE) {
-        alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
+        showToast(`❌ File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`, 'error');
         return;
     }
 
@@ -160,8 +169,8 @@ fileInput.addEventListener('change', async (e) => {
     });
 
     uploadRequest.upload.addEventListener('error', () => {
-        alert('Upload failed');
-        window.location.reload();
+        showToast('❌ Upload failed', 'error');
+        setTimeout(() => window.location.reload(), 1000);
     });
 
     uploadRequest.send(formData);
@@ -174,8 +183,8 @@ cancelButton.addEventListener('click', () => {
         const data = { 'id': uploadID }
         postJson('/api/cancelUpload', data)
     }
-    alert('Upload canceled');
-    window.location.reload();
+    showToast('Upload cancelled', 'info');
+    setTimeout(() => window.location.reload(), 1000);
 });
 
 async function updateSaveProgress(id) {
@@ -235,8 +244,8 @@ async function handleUpload2(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            alert('Upload Completed')
-            window.location.reload();
+            showToast('✨ Upload completed successfully!', 'success');
+            setTimeout(() => window.location.reload(), 1000);
         }
     }, 3000)
 }
@@ -285,8 +294,8 @@ async function download_progress_updater(id, file_name, file_size) {
 
         if (data[0] === 'error') {
             clearInterval(interval);
-            alert('Failed To Download File From URL To Backend Server')
-            window.location.reload()
+            showToast('❌ Failed to download file from URL', 'error');
+            setTimeout(() => window.location.reload(), 1000);
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
@@ -337,8 +346,8 @@ async function Start_URL_Upload() {
 
     }
     catch (err) {
-        alert(err)
-        window.location.reload()
+        showToast(`❌ ${err.message}`, 'error');
+        setTimeout(() => window.location.reload(), 1500);
     }
 
 

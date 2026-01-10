@@ -98,10 +98,11 @@ document.getElementById('rename-cancel').addEventListener('click', () => {
 document.getElementById('rename-create').addEventListener('click', async () => {
     const name = document.getElementById('rename-name').value;
     if (name === '') {
-        alert('Name cannot be empty')
+        showToast('Name cannot be empty', 'error');
         return
     }
 
+    showLoading('Renaming...');
     const id = document.getElementById('rename-file-folder').getAttribute('data-id')
 
     const path = document.getElementById(`more-option-${id}`).getAttribute('data-path') + '/' + id
@@ -112,12 +113,13 @@ document.getElementById('rename-create').addEventListener('click', async () => {
     }
 
     const response = await postJson('/api/renameFileFolder', data)
+    hideLoading();
     if (response.status === 'ok') {
-        alert('File/Folder Renamed Successfully')
-        window.location.reload();
+        showToast('✨ Renamed successfully!', 'success');
+        setTimeout(() => window.location.reload(), 1000);
     } else {
-        alert('Failed to rename file/folder')
-        window.location.reload();
+        showToast('Failed to rename', 'error');
+        setTimeout(() => window.location.reload(), 1000);
     }
 });
 
@@ -132,14 +134,16 @@ async function trashFileFolder() {
         'path': path,
         'trash': true
     }
+    showLoading('Moving to trash...');
     const response = await postJson('/api/trashFileFolder', data)
+    hideLoading();
 
     if (response.status === 'ok') {
-        alert('File/Folder Sent to Trash Successfully')
-        window.location.reload();
+        showToast('🗑️ Moved to trash', 'success');
+        setTimeout(() => window.location.reload(), 1000);
     } else {
-        alert('Failed to Send File/Folder to Trash')
-        window.location.reload();
+        showToast('Failed to move to trash', 'error');
+        setTimeout(() => window.location.reload(), 1000);
     }
 }
 
@@ -150,14 +154,16 @@ async function restoreFileFolder() {
         'path': path,
         'trash': false
     }
+    showLoading('Restoring...');
     const response = await postJson('/api/trashFileFolder', data)
+    hideLoading();
 
     if (response.status === 'ok') {
-        alert('File/Folder Restored Successfully')
-        window.location.reload();
+        showToast('✅ Restored successfully', 'success');
+        setTimeout(() => window.location.reload(), 1000);
     } else {
-        alert('Failed to Restored File/Folder')
-        window.location.reload();
+        showToast('Failed to restore', 'error');
+        setTimeout(() => window.location.reload(), 1000);
     }
 }
 
@@ -167,14 +173,16 @@ async function deleteFileFolder() {
     const data = {
         'path': path
     }
+    showLoading('Deleting permanently...');
     const response = await postJson('/api/deleteFileFolder', data)
+    hideLoading();
 
     if (response.status === 'ok') {
-        alert('File/Folder Deleted Successfully')
-        window.location.reload();
+        showToast('🗑️ Deleted permanently', 'success');
+        setTimeout(() => window.location.reload(), 1000);
     } else {
-        alert('Failed to Delete File/Folder')
-        window.location.reload();
+        showToast('Failed to delete', 'error');
+        setTimeout(() => window.location.reload(), 1000);
     }
 }
 
